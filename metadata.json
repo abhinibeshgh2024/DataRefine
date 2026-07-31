@@ -1,0 +1,6 @@
+{
+  "name": "CSV Data Corruption & Auto-Cleaner",
+  "description": "An interactive data hygiene studio to inject synthetic anomalies into clean datasets, compute row anomaly scores, and perform statistical auto-cleaning.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
