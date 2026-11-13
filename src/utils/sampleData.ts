@@ -1,5 +1,49 @@
 import { SampleDataset } from '../types';
 
+function generateEnterpriseTelemetryBatch(count = 6000): Record<string, any>[] {
+  const pairs = ['EUR/USD', 'GBP/USD', 'USD/JPY', 'USD/CHF', 'AUD/USD'];
+  const desks = ['London-FX', 'NewYork-Rates', 'Tokyo-Spot', 'Frankfurt-Clearing'];
+  const venues = ['EBS', 'Reuters', 'Currenex', 'FXall'];
+  const rows: Record<string, any>[] = [];
+
+  const baseDate = new Date('2025-01-01T00:00:00Z').getTime();
+
+  for (let i = 0; i < count; i++) {
+    const dayOffset = Math.floor(i / 25);
+    const dt = new Date(baseDate + dayOffset * 86400000);
+    const isoDate = dt.toISOString().slice(0, 10);
+    const pair = pairs[i % pairs.length];
+    const baseRate =
+      pair === 'USD/JPY'
+        ? 148.5
+        : pair === 'GBP/USD'
+        ? 1.27
+        : pair === 'EUR/USD'
+        ? 1.09
+        : pair === 'USD/CHF'
+        ? 0.88
+        : 0.66;
+
+    const jitter = ((Math.sin(i * 0.37) + Math.cos(i * 0.13)) * 0.008) * baseRate;
+    const rate = Number((baseRate + jitter).toFixed(4));
+    const volumeLots = 10 + ((i * 7) % 240);
+    const latencyMs = Number((4.2 + ((i * 13) % 18) * 0.4).toFixed(2));
+
+    rows.push({
+      trade_id: `FX-${100000 + i}`,
+      trade_date: isoDate,
+      currency_pair: pair,
+      exchange_rate: rate,
+      volume_lots: volumeLots,
+      latency_ms: latencyMs,
+      desk: desks[i % desks.length],
+      venue: venues[i % venues.length],
+    });
+  }
+
+  return rows;
+}
+
 export const SAMPLE_DATASETS: SampleDataset[] = [
   {
     id: 'ecommerce_orders',
@@ -149,5 +193,13 @@ USR-832,2024-02-01,Free,0.00,7,North America
 USR-833,2024-02-02,Starter,49.00,12,Asia Pacific
 USR-834,2024-02-03,Enterprise,2200.00,28,North America
 USR-835,2024-02-04,Professional,199.00,21,Europe`
-  }
+  },
+  {
+    id: 'enterprise_6k_telemetry',
+    name: 'FX & Clearing Feed (6,000 Rows)',
+    description: 'High-volume institutional FX clearing ticks engineered to benchmark >5,000-row hybrid server routing.',
+    category: 'Enterprise Benchmark',
+    rowCount: 6000,
+    generator: () => generateEnterpriseTelemetryBatch(6000),
+  },
 ];
